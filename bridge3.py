@@ -1,5 +1,5 @@
 # bridge3.py -- reads orders from notes-sync and hands them to SX765D
-# put a GitHub token in token.txt (same folder) to get fast mode.
+# verified 9/26: 55 04 00 00 01 <v> AA  ->  v=255 drives BOTH motors
 import asyncio
 import base64
 import json
@@ -57,16 +57,14 @@ def packet(c, a, b):
     b = b & 0xFF
     if c == 0:                      # stop
         return bytes([0x55, 0x04, 0x00, 0x00, 0x00, 0x00, 0xAA])
-    if c == 1:                      # strength, value in slot 1
-        return bytes([0x55, 0x04, 0x00, 0x00, a, 0x00, 0xAA])
+    if c == 1:                      # strength (verified layout)
+        return bytes([0x55, 0x04, 0x00, 0x00, 0x01, a, 0xAA])
     if c == 2:                      # pattern mode/level
         return bytes([0x55, 0x03, 0x00, 0x00, a, b, 0x00])
-    if c == 3:                      # raw 04: slot1=a slot2=b
+    if c == 3:                      # raw 04, both slots free
         return bytes([0x55, 0x04, 0x00, 0x00, a, b, 0xAA])
-    if c == 4:                      # raw 04: slot1=01 slot2=a
-        return bytes([0x55, 0x04, 0x00, 0x00, 0x01, a, 0xAA])
-    if c == 5:                      # raw 03: slot1=01 slot2=a
-        return bytes([0x55, 0x03, 0x00, 0x00, 0x01, a, 0x00])
+    if c == 4:                      # raw 03, both slots free
+        return bytes([0x55, 0x03, 0x00, 0x00, a, b, 0x00])
     return None
 
 
