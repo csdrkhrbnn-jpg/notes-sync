@@ -53,12 +53,20 @@ def fetch():
 
 
 def packet(c, a, b):
-    if c == 0:
+    a = a & 0xFF
+    b = b & 0xFF
+    if c == 0:                      # stop
         return bytes([0x55, 0x04, 0x00, 0x00, 0x00, 0x00, 0xAA])
-    if c == 1:
-        return bytes([0x55, 0x04, 0x00, 0x00, 0x01, a & 0xFF, 0xAA])
-    if c == 2:
-        return bytes([0x55, 0x03, 0x00, 0x00, a & 0xFF, b & 0xFF, 0x00])
+    if c == 1:                      # strength, value in slot 1
+        return bytes([0x55, 0x04, 0x00, 0x00, a, 0x00, 0xAA])
+    if c == 2:                      # pattern mode/level
+        return bytes([0x55, 0x03, 0x00, 0x00, a, b, 0x00])
+    if c == 3:                      # raw 04: slot1=a slot2=b
+        return bytes([0x55, 0x04, 0x00, 0x00, a, b, 0xAA])
+    if c == 4:                      # raw 04: slot1=01 slot2=a
+        return bytes([0x55, 0x04, 0x00, 0x00, 0x01, a, 0xAA])
+    if c == 5:                      # raw 03: slot1=01 slot2=a
+        return bytes([0x55, 0x03, 0x00, 0x00, 0x01, a, 0x00])
     return None
 
 
